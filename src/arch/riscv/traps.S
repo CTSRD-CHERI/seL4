@@ -24,6 +24,9 @@
 .section .text.traps, "ax"
 BEGIN_FUNC(trap_entry)
 
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.cap
+#endif
 #ifdef ENABLE_SMP_SUPPORT
 /* The sscratch contains the stack for the current core */
   CSRRW REGN(sp), SSCRATCH, REGN(sp)
@@ -32,6 +35,9 @@ BEGIN_FUNC(trap_entry)
   LOAD  REGN(t0), (-1*REGBYTES)(PTRN(sp))
 #else
   CSRRW REGN(t0), SSCRATCH, REGN(t0)
+#endif
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.int
 #endif
 
   STORE REGN(ra), (0*REGBYTES)(PTRN(t0))
@@ -70,7 +76,13 @@ BEGIN_FUNC(trap_entry)
 #ifdef ENABLE_SMP_SUPPORT
   LOAD  REG(1), (-2*REGBYTES)(PTRN((sp))
 #else
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.cap
+#endif
   CSRR REG(1), SSCRATCH
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.int
+#endif
 #endif
   STORE    REG(1), (4*REGBYTES)(PTRN(t0))
 
@@ -91,11 +103,17 @@ BEGIN_FUNC(trap_entry)
 
 #ifdef ENABLE_SMP_SUPPORT
   /* save the user sp */
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.cap
+#endif
   CSRR REG(1), SSCRATCH
   STORE REG(1), (1*REGBYTES)(PTRN(t0))
 
   /* restore sscratch(c) */
   CSRRW SSCRATCH, REGN(sp)
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.int
+#endif
 #else
   /* Load kernel's stack address */
 #if defined(__CHERI_PURE_CAPABILITY__)
@@ -109,12 +127,15 @@ BEGIN_FUNC(trap_entry)
 
   /* Save exception PC */
   /* A mode switch to capmode is required even for hybrid for the standard CHERI-RISC-V
-   * but not in purecap mode or Cambridge's CHERI ISAv9 CHERI-RISC-V. MODESW is
-   * just nops for those other cases.
+   * but not in purecap mode or Cambridge's CHERI ISAv9 CHERI-RISC-V.
    */
-  MODESW
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.cap
+#endif
   CSRR REG(1), SEPC
-  MODESW
+#if !defined(__CHERI_PURE_CAPABILITY__) && defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+  modesw.int
+#endif
 
   STORE   REG(1), (33*REGBYTES)(PTRN(t0))
 

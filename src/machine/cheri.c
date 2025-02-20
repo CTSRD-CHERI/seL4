@@ -247,16 +247,15 @@ void cheri_print_cap(const void *__capability cap)
 static const __SIZE_TYPE__ function_reloc_flag = (__SIZE_TYPE__)1
                                                  << (__SIZE_WIDTH__ - 1);
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+#define GET_BIT_MASK(OFF_BITS) ~(__SIZE_TYPE__)(OFF_BITS)
 static const __SIZE_TYPE__ function_pointer_permissions_mask =
-    ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ |
-                     __CHERI_CAP_PERMISSION_PERMIT_STORE__);
-static const __SIZE_TYPE__ constant_pointer_permissions_mask =
-    ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ |
-                     __CHERI_CAP_PERMISSION_PERMIT_STORE__ |
-                     __CHERI_CAP_PERMISSION_PERMIT_EXECUTE__);
-static const __SIZE_TYPE__ global_pointer_permissions_mask =
-    ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_EXECUTE__);
+    GET_BIT_MASK(__CHERI_CAP_PERMISSION_WRITE__);
 
+static const __SIZE_TYPE__ constant_pointer_permissions_mask = GET_BIT_MASK(
+                                                                   __CHERI_CAP_PERMISSION_WRITE__ | __CHERI_CAP_PERMISSION_EXECUTE__);
+
+static const __SIZE_TYPE__ global_pointer_permissions_mask =
+    GET_BIT_MASK(__CHERI_CAP_PERMISSION_EXECUTE__);
 #else
 static const __SIZE_TYPE__ function_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
@@ -544,9 +543,11 @@ BOOT_CODE void _start_purecap(void)
      * execute. Change this if needed.
      */
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+    /* Setting the flag to 0 here makes the kernel and user run in purecap by default */
     RootKernelCap = __builtin_cheri_flags_set(__builtin_cheri_global_data_get(), 0);
 #else
-    RootKernelCap = __builtin_cheri_global_data_get();
+    /* Setting the flag to 1 here makes the kernel and user run in purecap by default */
+    RootKernelCap = __builtin_cheri_flags_set(__builtin_cheri_global_data_get(), 1);
 #endif
     size_t max_length = (__UINTPTR_TYPE__) __builtin_cheri_length_get(__builtin_cheri_global_data_get());
 
@@ -568,9 +569,11 @@ BOOT_CODE void _start_purecap(void)
      */
     RootUserCap = cheri_derive_data_cap(RootKernelCap, 0, (size_t) USER_TOP + 1,
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-                                        __CHERI_BW_CAP_PERMISSION_CAPABILITY__ |
+                                        __CHERI_CAP_PERMISSION_CAPABILITY__ |
+                                        __CHERI_CAP_PERMISSION_LOAD_MUTABLE__ |
+                                        __CHERI_CAP_PERMISSION_PERMIT_EL__ |
+                                        __CHERI_CAP_PERMISSION_PERMIT_SL__ |
 #else
-                                        __CHERI_CAP_PERMISSION_GLOBAL__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_STORE_LOCAL__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
 #endif
@@ -578,6 +581,7 @@ BOOT_CODE void _start_purecap(void)
                                         __ARM_CAP_PERMISSION_MUTABLE_LOAD__ |
                                         __ARM_CAP_PERMISSION_EXECUTIVE__ |
 #endif
+                                        __CHERI_CAP_PERMISSION_GLOBAL__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_LOAD_CAPABILITY__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_LOAD__ |
@@ -587,9 +591,11 @@ BOOT_CODE void _start_purecap(void)
     /* Root kernel cap from PPTR_BASE to the highest address, used to create/derive caps for the kernel mappings only */
     RootKernelCap = cheri_derive_data_cap(RootKernelCap, PPTR_BASE, KDEV_BASE - PPTR_BASE,
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-                                          __CHERI_BW_CAP_PERMISSION_CAPABILITY__ |
+                                          __CHERI_CAP_PERMISSION_CAPABILITY__ |
+                                          __CHERI_CAP_PERMISSION_LOAD_MUTABLE__ |
+                                          __CHERI_CAP_PERMISSION_PERMIT_EL__ |
+                                          __CHERI_CAP_PERMISSION_PERMIT_SL__ |
 #else
-                                          __CHERI_CAP_PERMISSION_GLOBAL__ |
                                           __CHERI_CAP_PERMISSION_PERMIT_STORE_LOCAL__ |
                                           __CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
 #endif
@@ -597,6 +603,7 @@ BOOT_CODE void _start_purecap(void)
                                           __ARM_CAP_PERMISSION_EXECUTIVE__ |
                                           __ARM_CAP_PERMISSION_MUTABLE_LOAD__ |
 #endif
+                                          __CHERI_CAP_PERMISSION_GLOBAL__ |
                                           __CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__ |
                                           __CHERI_CAP_PERMISSION_PERMIT_LOAD__ |
                                           __CHERI_CAP_PERMISSION_PERMIT_LOAD_CAPABILITY__ |
@@ -612,11 +619,7 @@ BOOT_CODE void _start_hybrid(void)
     /* We assume data/DDC is an almighty capability that will have all permissions, including
      * execute. Change this if needed.
      */
-#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-    RootKernelCap = __builtin_cheri_flags_set(__builtin_cheri_global_data_get(), 0);
-#else
     RootKernelCap = __builtin_cheri_global_data_get();
-#endif
 
     size_t max_length = (__UINTPTR_TYPE__) __builtin_cheri_length_get(__builtin_cheri_global_data_get());
 
@@ -632,9 +635,11 @@ BOOT_CODE void _start_hybrid(void)
      */
     RootUserCap = cheri_derive_data_cap(RootKernelCap, 0, (size_t) USER_TOP + 1,
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-                                        __CHERI_BW_CAP_PERMISSION_CAPABILITY__ |
+                                        __CHERI_CAP_PERMISSION_CAPABILITY__ |
+                                        __CHERI_CAP_PERMISSION_LOAD_MUTABLE__ |
+                                        __CHERI_CAP_PERMISSION_PERMIT_EL__ |
+                                        __CHERI_CAP_PERMISSION_PERMIT_SL__ |
 #else
-                                        __CHERI_CAP_PERMISSION_GLOBAL__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_STORE_LOCAL__ |
 #endif
@@ -642,10 +647,22 @@ BOOT_CODE void _start_hybrid(void)
                                         __ARM_CAP_PERMISSION_MUTABLE_LOAD__ |
                                         __ARM_CAP_PERMISSION_EXECUTIVE__ |
 #endif
+                                        __CHERI_CAP_PERMISSION_GLOBAL__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_LOAD_CAPABILITY__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_LOAD__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_STORE__ |
                                         __CHERI_CAP_PERMISSION_PERMIT_EXECUTE__);
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+    /* Setting the flag to 0 here makes all user run in purecap by default */
+    RootUserCap = __builtin_cheri_flags_set(RootUserCap, 0);
+    /* Setting the flag to 1 here makes the kernel run in hybrid/integer mode */
+    RootKernelCap = __builtin_cheri_flags_set(RootKernelCap, 1);
+#else
+    /* Setting the flag to 1 here makes all user run in purecap by default */
+    RootUserCap = __builtin_cheri_flags_set(RootUserCap, 1);
+    /* Setting the flag to 0 here makes the kernel run in hybrid/integer mode */
+    RootKernelCap = __builtin_cheri_flags_set(RootKernelCap, 0);
+#endif
 }
 #endif

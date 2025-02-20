@@ -9,3 +9,8 @@
 
 #include <sel4/config.h>
 #include <sel4/simple_types.h>
+
+#if defined(CONFIG_HAVE_CHERI)
+/* 32-bit CHERI-RISC-V doesn't have PTE bits */
+#define seL4_CHERI_RISCV_Default_VMAttributes 0
+#endif

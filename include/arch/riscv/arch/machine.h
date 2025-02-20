@@ -161,7 +161,13 @@ static inline void write_satp(word_t value)
 
 static inline void write_stvec(rword_t value)
 {
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
+    asm volatile("modesw.cap");
+#endif
     asm volatile(CSRW STVEC ", %0" :: ASM_REG_CONSTR "K"(value));
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
+    asm volatile("modesw.int");
+#endif
 }
 
 static inline word_t read_stval(void)
@@ -190,7 +196,13 @@ static inline word_t read_scause(void)
 static inline rword_t read_sepc(void)
 {
     rword_t temp;
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
+    asm volatile("modesw.cap");
+#endif
     asm volatile(CSRR "%0, " SEPC : "="ASM_REG_CONSTR(temp));
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
+    asm volatile("modesw.int");
+#endif
     return temp;
 }
 
@@ -235,7 +247,13 @@ static inline void clear_sie_mask(word_t mask_low)
 static inline rword_t read_sscratch(void)
 {
     rword_t temp;
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
+    asm volatile("modesw.cap");
+#endif
     asm volatile(CSRR " %0, " SSCRATCH : "="ASM_REG_CONSTR(temp));
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
+    asm volatile("modesw.int");
+#endif
     return temp;
 }
 

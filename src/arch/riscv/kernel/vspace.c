@@ -29,6 +29,15 @@
 #include <kernel/stack.h>
 #include <util.h>
 
+#if defined(CONFIG_HAVE_CHERI)
+/* Allow CHERI capability loads/stores by default */
+#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
+#define PTE_CHERI_RISCV_Default_VMAttributes 0x2lu
+#else
+#define PTE_CHERI_RISCV_Default_VMAttributes 0x1clu
+#endif
+#endif
+
 struct resolve_ret {
     paddr_t frameBase;
     vm_page_size_t frameSize;
@@ -72,7 +81,7 @@ static pte_t pte_next(word_t phys_addr, bool_t is_leaf)
 
     return pte_new(
 #if defined(CONFIG_HAVE_CHERI) && (__riscv_xlen == 64)
-               is_leaf ? 0x1c : 0,  /* cheri_ext -- allow all capability loads/stores */
+               is_leaf ? PTE_CHERI_RISCV_Default_VMAttributes : 0,  /* cheri_ext */
 #endif
                ppn,
                0,     /* sw */
@@ -185,7 +194,7 @@ BOOT_CODE void map_it_pt_cap(cap_t vspace_cap, cap_t pt_cap)
 
     *targetSlot = pte_new(
 #if defined(CONFIG_HAVE_CHERI) && (__riscv_xlen == 64)
-                      0x1c,  /* cheri_ext -- allow all capability loads/stores */
+                      0x0,  /* cheri_ext */
 #endif
                       (addrFromPPtr(pt) >> seL4_PageBits),
                       0, /* sw */
@@ -215,7 +224,7 @@ BOOT_CODE void map_it_frame_cap(cap_t vspace_cap, cap_t frame_cap)
 
     *targetSlot = pte_new(
 #if defined(CONFIG_HAVE_CHERI) && (__riscv_xlen == 64)
-                      0x1c,  /* cheri_ext -- allow all capability loads/stores */
+                      PTE_CHERI_RISCV_Default_VMAttributes,  /* cheri_ext */
 #endif
                       (pptr_to_paddr(frame_pptr) >> seL4_PageBits),
                       0, /* sw */

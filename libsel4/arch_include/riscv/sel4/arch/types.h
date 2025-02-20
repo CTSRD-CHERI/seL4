@@ -64,13 +64,8 @@ typedef struct seL4_UserContext_ {
 typedef enum {
     seL4_RISCV_ExecuteNever = 0x1,
 #if defined(CONFIG_HAVE_CHERI)
-
-#if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-    seL4_RISCV_Default_VMAttributes = 0,
-#else
-    /* Allow CHERI capability loads/stores by default */
-    seL4_RISCV_Default_VMAttributes = 0x1clu << 59,
-#endif
+    seL4_RISCV_Default_VMAttributes =
+        seL4_CHERI_RISCV_Default_VMAttributes << 59,
 #else
     seL4_RISCV_Default_VMAttributes = 0,
 #endif

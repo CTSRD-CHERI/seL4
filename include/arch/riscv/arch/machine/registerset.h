@@ -206,11 +206,9 @@ static inline rword_t CONST sanitiseRegister(regoff_t reg, rword_t v, bool_t arc
 #if defined(__CHERI_PURE_CAPABILITY__)
 #define MOVE  "cmv"
 #define MOVE_PTR "cmv"
-#define MODESW "nop"
 #else /* Hybrid */
 #define MOVE  "mv"
 #define MOVE_PTR "mv"
-#define MODESW "modesw"
 #endif
 
 #else /* Cambridge CHERI ISAv9 */
@@ -227,7 +225,6 @@ static inline rword_t CONST sanitiseRegister(regoff_t reg, rword_t v, bool_t arc
 #else /* Hybrid */
 #define MOVE_PTR "mv"
 #endif
-#define MODESW "nop"
 #endif
 
 /* Register prefixes and assembly constraints */
@@ -254,7 +251,6 @@ static inline rword_t CONST sanitiseRegister(regoff_t reg, rword_t v, bool_t arc
 
 /* Instructions */
 #define MOVE  "mv"
-#define MODESW "nop"
 #define CSRRW "csrrw "
 #define CSRW "csrw "
 #define CSRR "csrr "
@@ -290,11 +286,9 @@ static inline rword_t CONST sanitiseRegister(regoff_t reg, rword_t v, bool_t arc
 #if defined(__CHERI_PURE_CAPABILITY__)
 #define MOVE  cmv
 #define MOVE_PTR cmv
-#define MODESW nop
 #else /* Hybrid */
 #define MOVE  mv
 #define MOVE_PTR  mv
-#define MODESW modesw
 #endif
 
 #define ANDPERM acperm
@@ -312,7 +306,6 @@ static inline rword_t CONST sanitiseRegister(regoff_t reg, rword_t v, bool_t arc
 #define CADDI  cincoffset
 #define MOVE  cmove
 #define MOVE_PTR mv
-#define MODESW nop
 #define ANDPERM candperm
 #define SETMODE csetflags
 #define CLGC clgc
@@ -338,7 +331,6 @@ static inline rword_t CONST sanitiseRegister(regoff_t reg, rword_t v, bool_t arc
 /* Instructions */
 #define CADD  add
 #define CADDI addi
-#define MODESW nop
 #define MOVE  mv
 #define MOVE_PTR mv
 

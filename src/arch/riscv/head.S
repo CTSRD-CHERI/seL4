@@ -66,7 +66,7 @@ _start:
 #if defined(__CHERI_PURE_CAPABILITY__)
     # from now on, start purecap run-time mode
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-    modesw
+    modesw.cap
     call _start_purecap
 #else
     la              t2, _start_purecap
@@ -104,7 +104,11 @@ _start:
                         __CHERI_CAP_PERMISSION_PERMIT_LOAD__             | \
                         __CHERI_CAP_PERMISSION_PERMIT_LOAD_CAPABILITY__
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
-    ori             t2, t2, __CHERI_BW_CAP_PERMISSION_CAPABILITY__
+    ori             t2, t2, __CHERI_CAP_PERMISSION_CAPABILITY__
+    ori             t2, t2, __CHERI_CAP_PERMISSION_LOAD_MUTABLE__
+    ori             t2, t2, __CHERI_CAP_PERMISSION_GLOBAL__
+    ori             t2, t2, __CHERI_CAP_PERMISSION_PERMIT_EL__
+    ori             t2, t2, __CHERI_CAP_PERMISSION_PERMIT_SL__
 #else
     ori             t2, t2, __CHERI_CAP_PERMISSION_PERMIT_STORE_LOCAL__
 #endif

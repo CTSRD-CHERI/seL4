@@ -81,20 +81,20 @@ void VISIBLE NORETURN restore_user_context(void)
         /* get sepc */
         LOAD_S " "REGN(t1) ", (34*%[REGSIZE])("PTRN(t0)")\n"
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
-        MODESW "\n"
+        "modesw.cap\n"
 #endif
         CSRW " " SEPC ", " REGN(t1)  "\n"
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
-        MODESW "\n"
+        "modesw.int\n"
 #endif
 #ifndef ENABLE_SMP_SUPPORT
         /* Write back sscratch with cur_thread_reg to get it back on the next trap entry */
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
-        MODESW "\n"
+        "modesw.cap\n"
 #endif
         CSRW " " SSCRATCH ", " REGN(t0)  "\n"
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9) && !defined(__CHERI_PURE_CAPABILITY__)
-        MODESW "\n"
+        "modesw.int\n"
 #endif
 #endif
         LOAD_S " "REGN(t1) ", (32*%[REGSIZE])("PTRN(t0)") \n"
