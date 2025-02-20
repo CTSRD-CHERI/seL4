@@ -18,6 +18,7 @@
     !defined(CONFIG_PLAT_POLARFIRE) && \
     !defined(CONFIG_PLAT_QEMU_RISCV_VIRT) && \
     !defined(CONFIG_PLAT_ROCKETCHIP_ZCU102) && \
+    !defined(CONFIG_PLAT_TOOOBA_BESSPIN) && \
     !defined(CONFIG_PLAT_STAR64)
 #error "Check if this platform suppots a PLIC."
 #endif

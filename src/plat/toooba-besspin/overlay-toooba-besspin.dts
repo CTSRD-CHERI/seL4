@@ -1,0 +1,20 @@
+/*
+ * Copyright 2020, Data61, CSIRO (ABN 41 687 119 230)
+ * Copyright (c) 2024, Capabilities Ltd <heshamalmatary@capabilitieslimited.co.uk>
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+
+/ {
+	chosen {
+		seL4,kernel-devices =
+            &{/soc/clint@10000000},
+		        &{/soc/interrupt-controller@c000000};
+	};
+
+    soc {
+        clint@10000000 {
+            compatible = "riscv,cpu-intc";
+        };
+    };
+};
