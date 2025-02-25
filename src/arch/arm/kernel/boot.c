@@ -456,6 +456,13 @@ static BOOT_CODE bool_t try_init_kernel(
                                                 __CHERI_CAP_PERMISSION_PERMIT_STORE__);
 
     v_entry = (vptr_t) __builtin_cheri_address_set(cheri_build_user_cap(0, USER_TOP,
+#if defined(CONFIG_EXPORT_PMU_USER)
+                                                                        /* This is just for benchmarking in order to be able to msr/mrs
+                                                                         * for the counters (e.g., in sel4bench). It should not be enabled
+                                                                         * for release/production secure use.
+                                                                         */
+                                                                        __CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__ |
+#endif
                                                                         __CHERI_CAP_PERMISSION_PERMIT_LOAD__ |
                                                                         __ARM_CAP_PERMISSION_MUTABLE_LOAD__ |
                                                                         __CHERI_CAP_PERMISSION_PERMIT_SEAL__ |

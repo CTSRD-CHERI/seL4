@@ -568,6 +568,13 @@ BOOT_CODE void _start_purecap(void)
      * executive permission.
      */
     RootUserCap = cheri_derive_data_cap(RootKernelCap, 0, (size_t) USER_TOP + 1,
+#if defined(CONFIG_EXPORT_PMU_USER)
+                                          /* This is just for benchmarking in order to be able to msr/mrs
+                                           * for the counters (e.g., in sel4bench). It should not be enabled
+                                           * for release/production secure use.
+                                           */
+                                          __CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__ |
+#endif
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
                                         __CHERI_CAP_PERMISSION_CAPABILITY__ |
                                         __CHERI_CAP_PERMISSION_LOAD_MUTABLE__ |
@@ -634,6 +641,13 @@ BOOT_CODE void _start_hybrid(void)
      * executive permission.
      */
     RootUserCap = cheri_derive_data_cap(RootKernelCap, 0, (size_t) USER_TOP + 1,
+#if defined(CONFIG_EXPORT_PMU_USER)
+                                        /* This is just for benchmarking in order to be able to msr/mrs
+                                         * for the counters (e.g., in sel4bench). It should not be enabled
+                                         * for release/production secure use.
+                                         */
+                                        __CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__ |
+#endif
 #if defined(CONFIG_ARCH_CHERI_RISCV_V_0_9)
                                         __CHERI_CAP_PERMISSION_CAPABILITY__ |
                                         __CHERI_CAP_PERMISSION_LOAD_MUTABLE__ |

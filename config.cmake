@@ -432,6 +432,13 @@ config_option(
     CheriHybridKernel CHERI_HYBRID_KERNEL
     "Enable building and running the kernel in hybrid CHERI mode and user in purecap mode"
     DEFAULT OFF
+    DEPENDS "HaveCheri"
+    DEFAULT_DISABLED OFF
+)
+
+config_option(
+    CheriPureCapBenchmark CHERI_PURECAP_BENCHMARK
+    "Enable building with the benchmark ABI"
     DEFAULT OFF
     DEPENDS "HaveCheri"
     DEFAULT_DISABLED OFF
