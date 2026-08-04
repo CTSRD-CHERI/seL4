@@ -4,6 +4,12 @@
      SPDX-License-Identifier: GPL-2.0-only
 -->
 
+**NOTE: THIS RESEARCH VERSION OF THE CHERI EXTENSIONS TO THE SEL4 MICROKERNEL IS NO LONGER MAINTAINED. IT IS RETAINED FOR HISTORICAL AND REFERENCE PURPOSES.**
+
+The current CHERI-seL4 community development version is maintained in the [CHERI Alliance/CHERI-seL4](https://github.com/CHERI-Alliance/CHERI-seL4) repository
+part of [this release](https://cheri-alliance.org/cheri-sel4-and-cheri-microkit-released/).
+
+
 The seL4 microkernel
 ====================
 
